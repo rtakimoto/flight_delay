@@ -1,7 +1,7 @@
 import pytest
 import json
 from app import app
-from model import Session, Paciente
+from model import Session, Flight
 
 # To run: pytest -v test_api.py
 
@@ -13,18 +13,19 @@ def client():
         yield client
 
 @pytest.fixture
-def sample_patient_data():
-    """Dados de exemplo para teste de paciente"""
+def sample_flight_data():
+    """Dados de exemplo para teste de flight"""
     return {
-        "name": "João Silva",
-        "preg": 2,
-        "plas": 120,
-        "pres": 80,
-        "skin": 35,
-        "test": 180,
-        "mass": 25.5,
-        "pedi": 0.5,
-        "age": 35
+        "name": "Voo LA prim semana",
+        "day": 3,
+        "week": 2,
+        "airline": 3,
+        "flight_no": 98,
+        "tail": 500,
+        "origin": 16,
+        "destination": 273,
+        "dep_delay": -8.0,
+        "schedule_arrival": 415
     }
 
 def test_home_redirect(client):
@@ -39,57 +40,58 @@ def test_docs_redirect(client):
     assert response.status_code == 302
     assert '/openapi' in response.location
 
-def test_get_pacientes_empty(client):
-    """Testa a listagem de pacientes quando não há nenhum"""
-    response = client.get('/pacientes')
+def test_get_flights_empty(client):
+    """Testa a listagem de flights quando não há nenhum"""
+    response = client.get('/flights')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert 'pacientes' in data
-    assert isinstance(data['pacientes'], list)
+    assert 'flights' in data
+    assert isinstance(data['flights'], list)
 
-def test_add_patient_prediction(client, sample_patient_data):
-    """Testa a adição de um paciente com predição"""
-    # Primeiro, vamos limpar qualquer paciente existente com o mesmo nome
+def test_add_flight_prediction(client, sample_flight_data):
+    """Testa a adição de um flight com predição"""
+    # Primeiro, vamos limpar qualquer flight existente com o mesmo nome
     session = Session()
-    existing_patient = session.query(Paciente).filter(Paciente.name == sample_patient_data['name']).first()
-    if existing_patient:
-        session.delete(existing_patient)
+    existing_flight = session.query(Flight).filter(Flight.name == sample_flight_data['name']).first()
+    if existing_flight:
+        session.delete(existing_flight)
         session.commit()
     session.close()
     
     # Agora testamos a adição
-    response = client.post('/paciente', 
-                          data=json.dumps(sample_patient_data),
+    response = client.post('/flight', 
+                          data=json.dumps(sample_flight_data),
                           content_type='application/json')
     
     assert response.status_code == 200
     data = json.loads(response.data)
     
-    # Verifica se o paciente foi criado com todas as informações
-    assert data['name'] == sample_patient_data['name']
-    assert data['preg'] == sample_patient_data['preg']
-    assert data['plas'] == sample_patient_data['plas']
-    assert data['pres'] == sample_patient_data['pres']
-    assert data['skin'] == sample_patient_data['skin']
-    assert data['test'] == sample_patient_data['test']
-    assert data['mass'] == sample_patient_data['mass']
-    assert data['pedi'] == sample_patient_data['pedi']
-    assert data['age'] == sample_patient_data['age']
+    # Verifica se o flight foi criado com todas as informações
+    assert data['name'] == sample_flight_data['name']
+    assert data['day'] == sample_flight_data['day']
+    assert data['week'] == sample_flight_data['week']
+    assert data['airline'] == sample_flight_data['airline']
+    assert data['flight_no'] == sample_flight_data['flight_no']
+    assert data['tail'] == sample_flight_data['tail']
+    assert data['origin'] == sample_flight_data['origin']
+    assert data['destination'] == sample_flight_data['destination']
+    assert data['dep_delay'] == sample_flight_data['dep_delay']
+    assert data['schedule_arrival'] == sample_flight_data['schedule_arrival']
     
-    # Verifica se a predição foi feita (outcome deve estar presente)
-    assert 'outcome' in data
-    assert data['outcome'] in [0, 1]  # Deve ser 0 (não diabético) ou 1 (diabético)
+    # Verifica se a predição foi feita (delay deve estar presente)
+    assert 'delay' in data
+    assert data['delay'] in [0, 1]  # Deve ser 0 (sem atraso) ou 1 (com atraso)
 
-def test_add_duplicate_patient(client, sample_patient_data):
-    """Testa a adição de um paciente duplicado"""
-    # Primeiro adiciona o paciente
-    client.post('/paciente', 
-                data=json.dumps(sample_patient_data),
+def test_add_duplicate_flight(client, sample_flight_data):
+    """Testa a adição de um flight duplicado"""
+    # Primeiro adiciona o flight
+    client.post('/flight', 
+                data=json.dumps(sample_flight_data),
                 content_type='application/json')
     
     # Tenta adicionar novamente
-    response = client.post('/paciente', 
-                          data=json.dumps(sample_patient_data),
+    response = client.post('/flight', 
+                          data=json.dumps(sample_flight_data),
                           content_type='application/json')
     
     assert response.status_code == 409
@@ -97,43 +99,43 @@ def test_add_duplicate_patient(client, sample_patient_data):
     assert 'message' in data
     assert 'já existente' in data['message']
 
-def test_get_patient_by_name(client, sample_patient_data):
-    """Testa a busca de um paciente por nome"""
-    # Primeiro adiciona o paciente
-    client.post('/paciente', 
-                data=json.dumps(sample_patient_data),
+def test_get_flight_by_name(client, sample_flight_data):
+    """Testa a busca de um flight por nome"""
+    # Primeiro adiciona o flight
+    client.post('/flight', 
+                data=json.dumps(sample_flight_data),
                 content_type='application/json')
     
-    # Busca o paciente por nome
-    response = client.get(f'/paciente?name={sample_patient_data["name"]}')
+    # Busca o flight por nome
+    response = client.get(f'/flight?name={sample_flight_data["name"]}')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert data['name'] == sample_patient_data['name']
+    assert data['name'] == sample_flight_data['name']
 
-def test_get_nonexistent_patient(client):
-    """Testa a busca de um paciente que não existe"""
-    response = client.get('/paciente?name=PacienteInexistente')
+def test_get_nonexistent_flight(client):
+    """Testa a busca de um flight que não existe"""
+    response = client.get('/flight?name=PacienteInexistente')
     assert response.status_code == 404
     data = json.loads(response.data)
-    assert 'mesage' in data  # Note: há um typo no código original ("mesage" em vez de "message")
+    assert 'message' in data  
 
-def test_delete_patient(client, sample_patient_data):
-    """Testa a remoção de um paciente"""
-    # Primeiro adiciona o paciente
-    client.post('/paciente', 
-                data=json.dumps(sample_patient_data),
+def test_delete_flight(client, sample_flight_data):
+    """Testa a remoção de um flight"""
+    # Primeiro adiciona o flight
+    client.post('/flight', 
+                data=json.dumps(sample_flight_data),
                 content_type='application/json')
     
-    # Remove o paciente
-    response = client.delete(f'/paciente?name={sample_patient_data["name"]}')
+    # Remove o flight
+    response = client.delete(f'/flight?name={sample_flight_data["name"]}')
     assert response.status_code == 200
     data = json.loads(response.data)
     assert 'message' in data
     assert 'removido com sucesso' in data['message']
 
-def test_delete_nonexistent_patient(client):
-    """Testa a remoção de um paciente que não existe"""
-    response = client.delete('/paciente?name=PacienteInexistente')
+def test_delete_nonexistent_flight(client):
+    """Testa a remoção de um flight que não existe"""
+    response = client.delete('/flight?name=PacienteInexistente')
     assert response.status_code == 404
     data = json.loads(response.data)
     assert 'message' in data
@@ -142,57 +144,59 @@ def test_prediction_edge_cases(client):
     """Testa casos extremos para predição"""
     # Teste com valores mínimos
     min_data = {
-        "name": "Paciente Minimo",
-        "preg": 0,
-        "plas": 0,
-        "pres": 0,
-        "skin": 0,
-        "test": 0,
-        "mass": 0.0,
-        "pedi": 0.0,
-        "age": 21
+        "name": "Flight Minimo",
+        "day": 1,
+        "week": 1,
+        "airline": 0,
+        "flight_no": 4,
+        "tail": 5,
+        "origin": 0,
+        "destination": 2,
+        "dep_delay": -21.0,
+        "schedule_arrival": 3.0
     }
     
-    response = client.post('/paciente', 
+    response = client.post('/flight', 
                           data=json.dumps(min_data),
                           content_type='application/json')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert 'outcome' in data
+    assert 'delay' in data
     
     # Teste com valores máximos típicos
     max_data = {
-        "name": "Paciente Maximo",
-        "preg": 17,
-        "plas": 199,
-        "pres": 122,
-        "skin": 99,
-        "test": 846,
-        "mass": 67.1,
-        "pedi": 2.42,
-        "age": 81
+        "name": "Flight Maximo",
+        "day": 30,
+        "week": 7,
+        "airline": 13,
+        "flight_no": 7432,
+        "tail": 3580,
+        "origin": 278,
+        "destination": 276,
+        "dep_delay": 985.0,
+        "schedule_arrival": 2359.0
     }
     
-    response = client.post('/paciente', 
+    response = client.post('/flight', 
                           data=json.dumps(max_data),
                           content_type='application/json')
     assert response.status_code == 200
     data = json.loads(response.data)
-    assert 'outcome' in data
+    assert 'delay' in data
 
-def cleanup_test_patients():
-    """Limpa pacientes de teste do banco"""
+def cleanup_test_flights():
+    """Limpa flights de teste do banco"""
     session = Session()
-    test_patients = session.query(Paciente).filter(
-        Paciente.name.in_(['João Silva', 'Paciente Minimo', 'Paciente Maximo'])
+    test_flights = session.query(Flight).filter(
+        Flight.name.in_(['Voo LA prim semana', 'Flight Minimo', 'Flight Maximo'])
     ).all()
     
-    for patient in test_patients:
-        session.delete(patient)
+    for flight in test_flights:
+        session.delete(flight)
     session.commit()
     session.close()
 
 # Executa limpeza após os testes
 def test_cleanup():
     """Limpa dados de teste"""
-    cleanup_test_patients()
+    cleanup_test_flights()

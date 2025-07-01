@@ -4,22 +4,23 @@
   --------------------------------------------------------------------------------------
 */
 const getList = async () => {
-  let url = 'http://127.0.0.1:5000/pacientes';
+  let url = 'http://127.0.0.1:5000/flights';
   fetch(url, {
     method: 'get',
   })
     .then((response) => response.json())
     .then((data) => {
-      data.pacientes.forEach(item => insertList(item.name, 
-                                                item.preg, 
-                                                item.plas,
-                                                item.pres,
-                                                item.skin,
-                                                item.test,
-                                                item.mass,
-                                                item.pedi,
-                                                item.age,
-                                                item.outcome
+      data.flights.forEach(item => insertList(item.name, 
+                                                item.day, 
+                                                item.week,
+                                                item.airline,
+                                                item.flight_no,
+                                                item.tail,
+                                                item.origin,
+                                                item.destination,
+                                                item.dep_delay,
+                                                item.schedule_arrival,
+                                                item.delay
                                               ))
     })
     .catch((error) => {
@@ -68,29 +69,30 @@ document.addEventListener('DOMContentLoaded', function() {
   Função para colocar um item na lista do servidor via requisição POST
   --------------------------------------------------------------------------------------
 */
-const postItem = async (inputPatient, inputPreg, inputPlas,
-                        inputPres, inputSkin, inputTest, 
-                        inputMass, inputPedi, inputAge) => {
+const postItem = async (inputFlight, inputDay, inputWeek,
+                        inputAirline, inputFlightNo, inputTail, 
+                        inputOrigin, inputDestination, inputDepDelay, inputScheduleArrival) => {
     
   const formData = new FormData();
-  formData.append('name', inputPatient);
-  formData.append('preg', inputPreg);
-  formData.append('plas', inputPlas);
-  formData.append('pres', inputPres);
-  formData.append('skin', inputSkin);
-  formData.append('test', inputTest);
-  formData.append('mass', inputMass);
-  formData.append('pedi', inputPedi);
-  formData.append('age', inputAge);
+  formData.append('name', inputFlight);
+  formData.append('day', inputDay);
+  formData.append('week', inputWeek);
+  formData.append('airline', inputAirline);
+  formData.append('flight_no', inputFlightNo);
+  formData.append('tail', inputTail);
+  formData.append('origin', inputOrigin);
+  formData.append('destination', inputDestination);
+  formData.append('dep_delay', inputDepDelay);
+  formData.append('schedule_arrival', inputScheduleArrival);
 
-  let url = 'http://127.0.0.1:5000/paciente';
+  let url = 'http://127.0.0.1:5000/flight';
   return fetch(url, {
     method: 'post',
     body: formData
   })
     .then((response) => response.json())
     .then((data) => {
-      return data; // Retorna os dados do paciente com o diagnóstico
+      return data; // Retorna os dados do voo com a análise
     })
     .catch((error) => {
       console.error('Error:', error);
@@ -141,7 +143,7 @@ const removeElement = () => {
 */
 const deleteItem = (item) => {
   console.log(item)
-  let url = 'http://127.0.0.1:5000/paciente?name='+item;
+  let url = 'http://127.0.0.1:5000/flight?name='+item;
   fetch(url, {
     method: 'delete'
   })
@@ -153,56 +155,58 @@ const deleteItem = (item) => {
 
 /*
   --------------------------------------------------------------------------------------
-  Função para adicionar um novo item com nome, quantidade e valor 
+  Função para adicionar um novo item com voo e dados 
   --------------------------------------------------------------------------------------
 */
 const newItem = async (event) => {
   event.preventDefault();
 
-  let inputPatient = document.getElementById("newInput").value;
-  let inputPreg = document.getElementById("newPreg").value;
-  let inputPlas = document.getElementById("newPlas").value;
-  let inputPres = document.getElementById("newPres").value;
-  let inputSkin = document.getElementById("newSkin").value;
-  let inputTest = document.getElementById("newTest").value;
-  let inputMass = document.getElementById("newMass").value;
-  let inputPedi = document.getElementById("newPedi").value;
-  let inputAge = document.getElementById("newAge").value;
+  let inputFlight = document.getElementById("newInput").value;
+  let inputDay = document.getElementById("newDay").value;
+  let inputWeek = document.getElementById("newWeek").value;
+  let inputAirline = document.getElementById("newAirline").value;
+  let inputFlightNo = document.getElementById("newFlightNo").value;
+  let inputTail = document.getElementById("newTail").value;
+  let inputOrigin = document.getElementById("newOrigin").value;
+  let inputDestination = document.getElementById("newDestination").value;
+  let inputDepDelay = document.getElementById("newDepDelay").value;
+  let inputScheduleArrival = document.getElementById("newScheduleArrival").value;
 
   // Verifique se o nome do produto já existe antes de adicionar
-  const checkUrl = `http://127.0.0.1:5000/pacientes?nome=${inputPatient}`;
+  const checkUrl = `http://127.0.0.1:5000/flights?nome=${inputFlight}`;
   fetch(checkUrl, {
     method: 'get'
   })
     .then((response) => response.json())
     .then(async (data) => {
-      if (data.pacientes && data.pacientes.some(item => item.name === inputPatient)) {
-        alert("O paciente já está cadastrado.\nCadastre o paciente com um nome diferente ou atualize o existente.");
-      } else if (inputPatient === '') {
-        alert("O nome do paciente não pode ser vazio!");
-      } else if (isNaN(inputPreg) || isNaN(inputPlas) || isNaN(inputPres) || isNaN(inputSkin) || isNaN(inputTest) || isNaN(inputMass) || isNaN(inputPedi) || isNaN(inputAge)) {
+      if (data.flights && data.flights.some(item => item.name === inputFlight)) {
+        alert("O voo já está cadastrado.\nCadastre o voo com um nome diferente ou atualize o existente.");
+      } else if (inputFlight === '') {
+        alert("O nome do voo não pode ser vazio!");
+      } else if (isNaN(inputDay) || isNaN(inputWeek) || isNaN(inputAirline) || isNaN(inputFlightNo) || isNaN(inputTail) || isNaN(inputOrigin) || isNaN(inputDestination) || isNaN(inputDepDelay) || isNaN(inputScheduleArrival)) {
         alert("Esse(s) campo(s) precisam ser números!");
       } else {
         try {
           // Envia os dados para o servidor e aguarda a resposta com o diagnóstico
-          const result = await postItem(inputPatient, inputPreg, inputPlas, inputPres, inputSkin, inputTest, inputMass, inputPedi, inputAge);
+          const result = await postItem(inputFlight, inputDay, inputWeek, inputAirline, inputFlightNo, inputTail, inputOrigin, inputDestination, inputDepDelay, inputScheduleArrival);
             // Limpa o formulário
           document.getElementById("newInput").value = "";
-          document.getElementById("newPreg").value = "";
-          document.getElementById("newPlas").value = "";
-          document.getElementById("newPres").value = "";
-          document.getElementById("newSkin").value = "";
-          document.getElementById("newTest").value = "";
-          document.getElementById("newMass").value = "";
-          document.getElementById("newPedi").value = "";
-          document.getElementById("newAge").value = "";
+          document.getElementById("newDay").value = "";
+          document.getElementById("newWeek").value = "";
+          document.getElementById("newAirline").value = "";
+          document.getElementById("newFlightNo").value = "";
+          document.getElementById("newTail").value = "";
+          document.getElementById("newOrigin").value = "";
+          document.getElementById("newDestination").value = "";
+          document.getElementById("newDepDelay").value = "";
+          document.getElementById("newScheduleArrival").value = "";
           
-          // Recarrega a lista completa para mostrar o novo paciente com o diagnóstico
+          // Recarrega a lista completa para mostrar o novo voo com a análise
           await refreshList();
           
-          // Mostra mensagem de sucesso com o diagnóstico
-          const diagnostico = result.outcome === 1 ? "DIABÉTICO" : "NÃO DIABÉTICO";
-          alert(`Paciente adicionado com sucesso!\nDiagnóstico: ${diagnostico}`);
+          // Mostra mensagem de sucesso com a análise
+          const analise = result.delay === 1 ? "COM ATRASO" : "SEM ATRASO";
+          alert(`Voo adicionado com sucesso!\nAnálise: ${analise}`);
           
           // Scroll para a tabela para mostrar o novo resultado
           document.querySelector('.items').scrollIntoView({ 
@@ -211,14 +215,14 @@ const newItem = async (event) => {
           });
           
         } catch (error) {
-          console.error('Erro ao adicionar paciente:', error);
-          alert("Erro ao adicionar paciente. Tente novamente.");
+          console.error('Erro ao adicionar o voo:', error);
+          alert("Erro ao adicionar o voo. Tente novamente.");
         }
       }
     })
     .catch((error) => {
       console.error('Error:', error);
-      alert("Erro ao verificar paciente existente. Tente novamente.");
+      alert("Erro ao verificar voo existente. Tente novamente.");
     });
 }
 
@@ -228,27 +232,27 @@ const newItem = async (event) => {
   Função para inserir items na lista apresentada
   --------------------------------------------------------------------------------------
 */
-const insertList = (namePatient, preg, plas, pres, skin, test, mass, pedi, age, outcome) => {
-  var item = [namePatient, preg, plas, pres, skin, test, mass, pedi, age];
+const insertList = (nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival, delay) => {
+  var item = [nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival];
   var table = document.getElementById('myTable');
   var row = table.insertRow();
 
-  // Insere as células com os dados do paciente
+  // Insere as células com os dados do flight
   for (var i = 0; i < item.length; i++) {
     var cell = row.insertCell(i);
     cell.textContent = item[i];
   }
 
   // Insere a célula do diagnóstico com styling
-  var diagnosticCell = row.insertCell(item.length);
-  const diagnosticText = outcome === 1 ? "DIABÉTICO" : "NÃO DIABÉTICO";
-  diagnosticCell.textContent = diagnosticText;
+  var analysisCell = row.insertCell(item.length);
+  const analysisText = delay === 1 ? "COM ATRASO" : "SEM ATRASO";
+  analysisCell.textContent = analysisText;
   
   // Aplica styling baseado no diagnóstico
-  if (outcome === 1) {
-    diagnosticCell.className = "diagnostic-positive";
+  if (delay === 1) {
+    analysisCell.className = "analysis-positive";
   } else {
-    diagnosticCell.className = "diagnostic-negative";
+    analysisCell.className = "analysis-negative";
   }
 
   // Insere o botão de deletar
