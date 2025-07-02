@@ -309,6 +309,14 @@ table{
         min-width: 140px;
         max-width: 200px;
     }
+    .newItem select {
+        padding: 10px 15px;
+        margin: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        min-width: 140px;
+        max-width: 200px;
+    }
 }
 
 tr:nth-child(odd){
