@@ -19,3 +19,17 @@
 [2025-07-01 21:08:48,234] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 21:08:48] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
 [2025-07-01 21:28:40,671] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 21:28:40] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
 [2025-07-01 21:32:32,707] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 21:32:32] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:24:11,718] INFO _log() L97   [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.201.6:5000 - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:24:11,718] INFO _log() L97   [33mPress CTRL+C to quit[0m - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:24:17,865] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:24:17] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:25:40,812] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:25:40] "GET /flights?nome=test%20flight%203 HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:25:40,987] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:25:40] "POST /flight HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:25:40,999] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:25:40] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:49:06,966] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:49:06] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:49:08,394] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:49:08] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:50:48,749] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:50:48] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:50:59,462] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:50:59] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  
+[2025-07-01 22:51:00,705] INFO _log() L97   127.0.0.1 - - [01/Jul/2025 22:51:00] "GET /flights HTTP/1.1" 200 - - call_trace=/home/takimoto/MVP2/flight_delay/back/lib/python3.12/site-packages/werkzeug/_internal.py L97  

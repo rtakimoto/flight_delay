@@ -240,10 +240,26 @@ const insertList = (nameFlight, day, week, airline, flight_no, tail, origin, des
   // Insere as células com os dados do flight
   for (var i = 0; i < item.length; i++) {
     var cell = row.insertCell(i);
-    cell.textContent = item[i];
+    if (i==2)
+      if (item[i]==1)
+        cell.textContent="Sunday"
+      else if (item[i]==2)
+        cell.textContent="Monday"
+      else if (item[i]==3)
+        cell.textContent="Tuesday"
+      else if (item[i]==4)
+        cell.textContent="Wednesday"
+      else if (item[i]==5)
+        cell.textContent="Thursday"
+      else if (item[i]==6)
+        cell.textContent="Friday"
+      else
+        cell.textContent="Saturday"
+    else
+      cell.textContent = item[i];
   }
 
-  // Insere a célula do diagnóstico com styling
+  // Insere a célula da analise com styling
   var analysisCell = row.insertCell(item.length);
   const analysisText = delay === 1 ? "COM ATRASO" : "SEM ATRASO";
   analysisCell.textContent = analysisText;
