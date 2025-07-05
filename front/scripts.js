@@ -3,6 +3,7 @@
   Função para obter a lista existente do servidor via requisição GET
   --------------------------------------------------------------------------------------
 */
+
 const getList = async () => {
   let url = 'http://127.0.0.1:5000/flights';
   fetch(url, {
@@ -10,7 +11,7 @@ const getList = async () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      data.flights.forEach(item => insertList(item.name, 
+      data.flights.forEach(item => ConvertList(item.name, 
                                                 item.day, 
                                                 item.week,
                                                 item.airline,
@@ -21,6 +22,38 @@ const getList = async () => {
                                                 item.dep_delay,
                                                 item.schedule_arrival,
                                                 item.delay
+                                              ))
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+}
+
+const getAirline = async () => {
+  let url = 'http://127.0.0.1:5000/airlines';
+  fetch(url, {
+    method: 'get',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      data.airlines.forEach(item => insertAirline(item.index, 
+                                                item.airline
+                                              ))
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+}
+
+const getTail = async () => {
+  let url = 'http://127.0.0.1:5000/tails';
+  fetch(url, {
+    method: 'get',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      data.tails.forEach(item => insertTail(item.index, 
+                                                item.tail
                                               ))
     })
     .catch((error) => {
@@ -49,6 +82,8 @@ const clearTable = () => {
 const refreshList = async () => {
   clearTable();
   await getList();
+  await getAirline();
+  await getTail();
 }
 
 /*
@@ -59,6 +94,8 @@ const refreshList = async () => {
 // Carrega a lista apenas uma vez quando a página é carregada
 document.addEventListener('DOMContentLoaded', function() {
   getList();
+  getAirline();
+  getTail();
 });
 
 
@@ -226,13 +263,84 @@ const newItem = async (event) => {
     });
 }
 
+/*
+  --------------------------------------------------------------------------------------
+  Função para inserir items na lista apresentada
+  --------------------------------------------------------------------------------------
+*/
+const insertAirline = (index, airline) => {
+  const comboBox = document.getElementById('newAirline');
+  const newOption = new Option(airline, index);
+  comboBox.add(newOption);
+}
+
 
 /*
   --------------------------------------------------------------------------------------
   Função para inserir items na lista apresentada
   --------------------------------------------------------------------------------------
 */
-const insertList = (nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival, delay) => {
+const insertTail = (index, tail) => {
+  const comboBox = document.getElementById('newTail');
+  const newOption = new Option(tail, index);
+  comboBox.add(newOption);
+}
+
+
+
+/*
+  --------------------------------------------------------------------------------------
+  Função para converter os items da lista apresentada
+  --------------------------------------------------------------------------------------
+*/
+const ConvertList = async (nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival, delay) => {
+  var item = [nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival];
+  
+  for (var i = 0; i < item.length; i++) {
+    if (i==2)
+      if (item[i]==1)
+        week="Sunday"
+      else if (item[i]==2)
+        week="Monday"
+      else if (item[i]==3)
+        week="Tuesday"
+      else if (item[i]==4)
+        week="Wednesday"
+      else if (item[i]==5)
+        week="Thursday"
+      else if (item[i]==6)
+        week="Friday"
+      else
+        week="Saturday"
+    else if (i==3)
+    {
+      const url = `http://127.0.0.1:5000/airline?index=${item[i]}`;
+      await fetch(url, {
+        method: 'get'
+      })
+      .then((response) => response.json())
+      .then(async (data) => {airline=data.airline});
+    }
+    else if (i==5)
+    {
+      const url = `http://127.0.0.1:5000/tail?index=${item[i]}`;
+      await fetch(url, {
+        method: 'get'
+      })
+      .then((response) => response.json())
+      .then(async (data) => {tail=data.tail});
+    }
+  }
+  insertList(nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival);
+}
+
+
+/*
+  --------------------------------------------------------------------------------------
+  Função para inserir items na lista apresentada
+  --------------------------------------------------------------------------------------
+*/
+const insertList = async (nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival, delay) => {
   var item = [nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival];
   var table = document.getElementById('myTable');
   var row = table.insertRow();
@@ -240,23 +348,7 @@ const insertList = (nameFlight, day, week, airline, flight_no, tail, origin, des
   // Insere as células com os dados do flight
   for (var i = 0; i < item.length; i++) {
     var cell = row.insertCell(i);
-    if (i==2)
-      if (item[i]==1)
-        cell.textContent="Sunday"
-      else if (item[i]==2)
-        cell.textContent="Monday"
-      else if (item[i]==3)
-        cell.textContent="Tuesday"
-      else if (item[i]==4)
-        cell.textContent="Wednesday"
-      else if (item[i]==5)
-        cell.textContent="Thursday"
-      else if (item[i]==6)
-        cell.textContent="Friday"
-      else
-        cell.textContent="Saturday"
-    else
-      cell.textContent = item[i];
+    cell.textContent = item[i];
   }
 
   // Insere a célula da analise com styling

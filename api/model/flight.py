@@ -37,7 +37,7 @@ class Flight(Base):
             name: descrição do voo
             day: Dia
             week: Dia da Semana
-            airline: Aerolínea
+            airline: Cia Aerea
             flight_no: Número do voo
             tail: Matrícula 
             origin: Origem

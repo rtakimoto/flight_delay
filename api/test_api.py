@@ -114,7 +114,23 @@ def test_get_flight_by_name(client, sample_flight_data):
 
 def test_get_nonexistent_flight(client):
     """Testa a busca de um flight que não existe"""
-    response = client.get('/flight?name=PacienteInexistente')
+    response = client.get('/flight?name=FlightInexistente')
+    assert response.status_code == 404
+    data = json.loads(response.data)
+    assert 'message' in data  
+
+
+def test_get_nonexistent_airline(client):
+    """Testa a busca de um index que não existe"""
+    response = client.get('/airline?index=55')
+    assert response.status_code == 404
+    data = json.loads(response.data)
+    assert 'message' in data  
+
+
+def test_get_nonexistent_tail(client):
+    """Testa a busca de um index que não existe"""
+    response = client.get('/tail?index=9000')
     assert response.status_code == 404
     data = json.loads(response.data)
     assert 'message' in data  
@@ -135,7 +151,7 @@ def test_delete_flight(client, sample_flight_data):
 
 def test_delete_nonexistent_flight(client):
     """Testa a remoção de um flight que não existe"""
-    response = client.delete('/flight?name=PacienteInexistente')
+    response = client.delete('/flight?name=FlightInexistente')
     assert response.status_code == 404
     data = json.loads(response.data)
     assert 'message' in data

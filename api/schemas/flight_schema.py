@@ -31,6 +31,7 @@ class FlightViewSchema(BaseModel):
     origin: int = 100
     destination: int = 120
     dep_delay: float = 12.0
+    schedule_arrival: float = 455
     delay: int = None
     
 class FlightBuscaSchema(BaseModel):

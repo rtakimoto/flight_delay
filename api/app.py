@@ -26,6 +26,15 @@ flight_tag = Tag(
     name="Flight",
     description="Adição, visualização, remoção e predição de flights com Delay",
 )
+airline_tag = Tag(
+    name="Airline",
+    description="Visualização de Airlines",
+)
+tail_tag = Tag(
+    name="Tail",
+    description="Visualização de Matriculas",
+)
+
 
 
 # Rota home - redireciona para o frontend
@@ -40,6 +49,63 @@ def home():
 def docs():
     """Redireciona para /openapi, tela que permite a escolha do estilo de documentação."""
     return redirect("/openapi")
+
+# Rota de listagem de matriculas
+@app.get(
+    "/tails",
+    tags=[tail_tag],
+    responses={"200": TailViewSchema, "404": ErrorSchema},
+)
+def get_tails():
+    """Lista todos as matriculas cadastradas na base
+    Args:
+       none
+
+    Returns:
+        list: lista de matriculas cadastradas na base
+    """
+    logger.debug("Coletando dados sobre todas as matriculas")
+    # Criando conexão com a base
+    session = Session()
+    # Buscando todos as matriculas
+    tails = session.query(Tail).all()
+
+    if not tails:
+        # Se não houver matriculas
+        return {"Tails": []}, 200
+    else:
+        logger.debug(f"%d Matriculas econtradas" % len(tails))
+        print(tails)
+        return apresenta_tails(tails), 200
+
+
+# Rota de listagem de cias aereas
+@app.get(
+    "/airlines",
+    tags=[airline_tag],
+    responses={"200": AirlineViewSchema, "404": ErrorSchema},
+)
+def get_airlines():
+    """Lista todos as cias aereas cadastradas na base
+    Args:
+       none
+
+    Returns:
+        list: lista de cias aereas cadastradas na base
+    """
+    logger.debug("Coletando dados sobre todas as cias aereas")
+    # Criando conexão com a base
+    session = Session()
+    # Buscando todos as cias aereas
+    airlines = session.query(Airline).all()
+
+    if not airlines:
+        # Se não houver airlines
+        return {"Airlines": []}, 200
+    else:
+        logger.debug(f"%d Airlines econtradas" % len(airlines))
+        print(airlines)
+        return apresenta_airlines(airlines), 200
 
 
 # Rota de listagem de flights
@@ -186,11 +252,88 @@ def get_flight(query: FlightBuscaSchema):
         logger.warning(
             f"Erro ao buscar flight '{flight_nome}', {error_msg}"
         )
-        return {"mesage": error_msg}, 404
+        return {"message": error_msg}, 404
     else:
         logger.debug(f"Flight econtrado: '{flight.name}'")
         # retorna a representação do flight
         return apresenta_flight(flight), 200
+
+# Métodos baseados em indice
+# Rota de busca de matricula por indice
+@app.get(
+    "/tail",
+    tags=[tail_tag],
+    responses={"200": TailViewSchema, "404": ErrorSchema},
+)
+def get_tail(query: TailBuscaSchema):
+    """Faz a busca por uma matricula cadastrada na base a partir do indice
+
+    Args:
+        indice (int): indice da matricula
+
+    Returns:
+        dict: representação da matricula
+    """
+
+    tail_index = query.index
+    logger.debug(f"Coletando dados sobre matricula #{tail_index}")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    tail = (
+        session.query(Tail).filter(Tail.index == tail_index).first()
+    )
+
+    if not tail:
+        # se a cia aerea não foi encontrada
+        error_msg = f"Matricula {tail_index} não encontrada na base :/"
+        logger.warning(
+            f"Erro ao buscar matricula '{tail_index}', {error_msg}"
+        )
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f"Matricula econtrada: '{tail.index}'")
+        # retorna a representação da matricula
+        return apresenta_tail(tail), 200
+
+
+# Métodos baseados em indice
+# Rota de busca de airline por indice
+@app.get(
+    "/airline",
+    tags=[airline_tag],
+    responses={"200": AirlineViewSchema, "404": ErrorSchema},
+)
+def get_airline(query: AirlineBuscaSchema):
+    """Faz a busca por uma cia aerea cadastrada na base a partir do indice
+
+    Args:
+        indice (int): indice da cia aerea
+
+    Returns:
+        dict: representação da cia aerea
+    """
+
+    airline_index = query.index
+    logger.debug(f"Coletando dados sobre cia aerea #{airline_index}")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    airline = (
+        session.query(Airline).filter(Airline.index == airline_index).first()
+    )
+
+    if not airline:
+        # se a cia aerea não foi encontrada
+        error_msg = f"Cia aerea {airline_index} não encontrada na base :/"
+        logger.warning(
+            f"Erro ao buscar cia aerea '{airline_index}', {error_msg}"
+        )
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f"Cia aerea econtrada: '{airline.index}'")
+        # retorna a representação da cia aerea
+        return apresenta_airline(airline), 200
 
 
 # Rota de remoção de flight por nome
