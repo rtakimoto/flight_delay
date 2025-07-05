@@ -34,7 +34,14 @@ tail_tag = Tag(
     name="Tail",
     description="Visualização de Matriculas",
 )
-
+origin_tag = Tag(
+    name="Origin",
+    description="Visualização de Aeroportos de Origem",
+)
+destination_tag = Tag(
+    name="Destination",
+    description="Visualização de Aeroportos de Destino",
+)
 
 
 # Rota home - redireciona para o frontend
@@ -49,6 +56,65 @@ def home():
 def docs():
     """Redireciona para /openapi, tela que permite a escolha do estilo de documentação."""
     return redirect("/openapi")
+
+
+# Rota de listagem de aeroporto de destino
+@app.get(
+    "/destinations",
+    tags=[destination_tag],
+    responses={"200": DestinationViewSchema, "404": ErrorSchema},
+)
+def get_destinations():
+    """Lista todos os aeroportos de destino cadastrados na base
+    Args:
+       none
+
+    Returns:
+        list: lista de aeroportos de destino cadastrados na base
+    """
+    logger.debug("Coletando dados sobre todos os aeroportos de destino")
+    # Criando conexão com a base
+    session = Session()
+    # Buscando todos os aeroportos de destino
+    destinations = session.query(Destination).all()
+
+    if not destinations:
+        # Se não houver aeroportos de destino
+        return {"Aeroportos de Destino": []}, 200
+    else:
+        logger.debug(f"%d Aeroportos de destino econtrados" % len(destinations))
+        print(destinations)
+        return apresenta_destinations(destinations), 200
+
+
+# Rota de listagem de aeroporto de origem
+@app.get(
+    "/origins",
+    tags=[origin_tag],
+    responses={"200": OriginViewSchema, "404": ErrorSchema},
+)
+def get_origins():
+    """Lista todos os aeroportos de origem cadastrados na base
+    Args:
+       none
+
+    Returns:
+        list: lista de aeroportos de origem cadastrados na base
+    """
+    logger.debug("Coletando dados sobre todos os aeroportos de origem")
+    # Criando conexão com a base
+    session = Session()
+    # Buscando todos os aeroportos de origem
+    origins = session.query(Origin).all()
+
+    if not origins:
+        # Se não houver aeroportos de origem
+        return {"Aeroportos de Origem": []}, 200
+    else:
+        logger.debug(f"%d Aeroportos de origem econtrados" % len(origins))
+        print(origins)
+        return apresenta_origins(origins), 200
+
 
 # Rota de listagem de matriculas
 @app.get(
@@ -257,6 +323,87 @@ def get_flight(query: FlightBuscaSchema):
         logger.debug(f"Flight econtrado: '{flight.name}'")
         # retorna a representação do flight
         return apresenta_flight(flight), 200
+
+
+
+# Métodos baseados em indice
+# Rota de busca de aeroportos de destino por indice
+@app.get(
+    "/destination",
+    tags=[destination_tag],
+    responses={"200": DestinationViewSchema, "404": ErrorSchema},
+)
+def get_destination(query: DestinationBuscaSchema):
+    """Faz a busca por um aeroporto de destino cadastrado na base a partir do indice
+
+    Args:
+        indice (int): indice do aeroporto de destino
+
+    Returns:
+        dict: representação do aeroporto de destino
+    """
+
+    destination_index = query.index
+    logger.debug(f"Coletando dados sobre aeroporto de destino #{destination_index}")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    destination = (
+        session.query(Destination).filter(Destination.index == destination_index).first()
+    )
+
+    if not destination:
+        # se o aeroporto de destino não foi encontrado
+        error_msg = f"Aeroporto de destino {destination_index} não encontrado na base :/"
+        logger.warning(
+            f"Erro ao buscar aeroporto de destino '{destination_index}', {error_msg}"
+        )
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f"Aeroporto de destino econtrado: '{destination.index}'")
+        # retorna a representação do aeroporto de destino
+        return apresenta_destination(destination), 200
+
+
+
+# Métodos baseados em indice
+# Rota de busca de aeroportos de origem por indice
+@app.get(
+    "/origin",
+    tags=[origin_tag],
+    responses={"200": OriginViewSchema, "404": ErrorSchema},
+)
+def get_origin(query: OriginBuscaSchema):
+    """Faz a busca por um aeroporto de origem cadastrado na base a partir do indice
+
+    Args:
+        indice (int): indice do aeroporto de origem
+
+    Returns:
+        dict: representação do aeroporto de origem
+    """
+
+    origin_index = query.index
+    logger.debug(f"Coletando dados sobre aeroporto de origem #{origin_index}")
+    # criando conexão com a base
+    session = Session()
+    # fazendo a busca
+    origin = (
+        session.query(Origin).filter(Origin.index == origin_index).first()
+    )
+
+    if not origin:
+        # se o aeroporto de origem não foi encontrado
+        error_msg = f"Aeroporto de origem {origin_index} não encontrado na base :/"
+        logger.warning(
+            f"Erro ao buscar aeroporto de origem '{origin_index}', {error_msg}"
+        )
+        return {"message": error_msg}, 404
+    else:
+        logger.debug(f"Aeroporto de origem econtrado: '{origin.index}'")
+        # retorna a representação do aeroporto de origem
+        return apresenta_origin(origin), 200
+
 
 # Métodos baseados em indice
 # Rota de busca de matricula por indice

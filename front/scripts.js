@@ -61,6 +61,38 @@ const getTail = async () => {
     });
 }
 
+const getOrigin = async () => {
+  let url = 'http://127.0.0.1:5000/origins';
+  fetch(url, {
+    method: 'get',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      data.origins.forEach(item => insertOrigin(item.index, 
+                                                item.origin
+                                              ))
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+}
+
+const getDestination = async () => {
+  let url = 'http://127.0.0.1:5000/destinations';
+  fetch(url, {
+    method: 'get',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      data.destinations.forEach(item => insertDestination(item.index, 
+                                                item.destination
+                                              ))
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+}
+
 /*
   --------------------------------------------------------------------------------------
   Função para limpar a tabela antes de recarregar os dados
@@ -84,6 +116,8 @@ const refreshList = async () => {
   await getList();
   await getAirline();
   await getTail();
+  await getOrigin();
+  await getDestination();
 }
 
 /*
@@ -96,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
   getList();
   getAirline();
   getTail();
+  getOrigin();
+  getDestination();
 });
 
 
@@ -287,6 +323,28 @@ const insertTail = (index, tail) => {
 }
 
 
+/*
+  --------------------------------------------------------------------------------------
+  Função para inserir items na lista apresentada
+  --------------------------------------------------------------------------------------
+*/
+const insertOrigin = (index, origin) => {
+  const comboBox = document.getElementById('newOrigin');
+  const newOption = new Option(origin, index);
+  comboBox.add(newOption);
+}
+
+/*
+  --------------------------------------------------------------------------------------
+  Função para inserir items na lista apresentada
+  --------------------------------------------------------------------------------------
+*/
+const insertDestination = (index, destination) => {
+  const comboBox = document.getElementById('newDestination');
+  const newOption = new Option(destination, index);
+  comboBox.add(newOption);
+}
+
 
 /*
   --------------------------------------------------------------------------------------
@@ -329,6 +387,24 @@ const ConvertList = async (nameFlight, day, week, airline, flight_no, tail, orig
       })
       .then((response) => response.json())
       .then(async (data) => {tail=data.tail});
+    }
+    else if (i==6)
+    {
+      const url = `http://127.0.0.1:5000/origin?index=${item[i]}`;
+      await fetch(url, {
+        method: 'get'
+      })
+      .then((response) => response.json())
+      .then(async (data) => {origin=data.origin});
+    }
+    else if (i==7)
+    {
+      const url = `http://127.0.0.1:5000/destination?index=${item[i]}`;
+      await fetch(url, {
+        method: 'get'
+      })
+      .then((response) => response.json())
+      .then(async (data) => {destination=data.destination});
     }
   }
   insertList(nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival);

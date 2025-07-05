@@ -9,6 +9,8 @@ from model.base import Base
 from model.flight import Flight
 from model.airline import Airline
 from model.tail import Tail
+from model.origin import Origin
+from model.destination import Destination
 from model.modelo import Model
 from model.pipeline import Pipeline
 from model.preprocessador import PreProcessador
@@ -58,6 +60,25 @@ def seed_tail(file_path):
             session.add(tail)
         session.commit()
 
+def seed_origin(file_path):
+    session.query(Origin).delete()
+    with open(file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            origin = Origin(index=row['VALUES'], origin=row['ORIGIN_AIRPORT'])
+            session.add(origin)
+        session.commit()
+
+def seed_destination(file_path):
+    session.query(Destination).delete()
+    with open(file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            destination = Destination(index=row['VALUES'], destination=row['DESTINATION_AIRPORT'])
+            session.add(destination)
+        session.commit()
 
 seed_airline("./MachineLearning/data/airline.csv")
 seed_tail("./MachineLearning/data/tail.csv")
+seed_origin("./MachineLearning/data/origin.csv")
+seed_destination("./MachineLearning/data/destination.csv")
