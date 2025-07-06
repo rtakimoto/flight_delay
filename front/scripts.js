@@ -407,7 +407,7 @@ const ConvertList = async (nameFlight, day, week, airline, flight_no, tail, orig
       .then(async (data) => {destination=data.destination});
     }
   }
-  insertList(nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival);
+  insertList(nameFlight, day, week, airline, flight_no, tail, origin, destination, dep_delay, schedule_arrival, delay);
 }
 
 
@@ -433,7 +433,7 @@ const insertList = async (nameFlight, day, week, airline, flight_no, tail, origi
   analysisCell.textContent = analysisText;
   
   // Aplica styling baseado no diagnóstico
-  if (delay === 1) {
+  if (delay == 1) {
     analysisCell.className = "analysis-positive";
   } else {
     analysisCell.className = "analysis-negative";
